@@ -6,6 +6,7 @@ import _thread
 import time
 import pandas as pd
 import threading
+import nfvgaojingkeshi as nfvgjks
 
 alarm_city_list = []
 alarm_id_list = []
@@ -124,7 +125,7 @@ def callback(ch, method, properties, body):
     if alarm_context.__contains__('AlarmClearTime'):
         #告警清除消息
         #print(alarm_context)
-        sumi = 0
+        pass
     elif alarm_context['LocateNeStatus'] == 0:
         #全量告警消息
         if alarm_context['NmsAlarmId'] == '0403-007-033-10-000057' and alarm_context['AlarmRegion'] == '河南省' and alarm_context['AlarmSeverity'] in [1, 2]:
@@ -157,7 +158,9 @@ def callback(ch, method, properties, body):
             if alarm_context['NmsAlarmId'] == nfv_alarm_list[j].strip() and alarm_context['SystemName'] in ['APP-HZZZhzqNFVO1AHW-03AHW010','APP-HZZZhzqNFVO1AER-01AER010']:
                 if not isinlist(alarm_context['AlarmRegion'], alarm_context['NmsAlarmId']):
                     #5分钟内同一告警不再重复提醒
-                    sendmsg = '网络云告警  设备类型:' + str(alarm_context['EquipmentClass']) + '  网元名称:' + str(alarm_context['NeName']) + '  告警标题:' + str(alarm_context['AlarmTitle']) +'  告警正文:'+ str(alarm_context['AlarmText'])
+                    #获取科室名称
+                    ksmc = nfvgjks.towhom(alarm_context['EquipmentClass'], alarm_context['NeName'])
+                    sendmsg = '网络云告警  所属科室:' + ksmc + '设备类型:' + str(alarm_context['EquipmentClass']) + '  网元名称:' + str(alarm_context['NeName']) + '  告警标题:' + str(alarm_context['AlarmTitle']) +'  告警正文:'+ str(alarm_context['AlarmText'])
                     try:
                         itchat.send(sendmsg, groupid)
                         time.sleep(1)
